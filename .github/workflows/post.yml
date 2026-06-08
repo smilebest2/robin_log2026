@@ -1,0 +1,67 @@
+name: Scheduled X Posts
+
+on:
+  schedule:
+    - cron: "0 23 * * *"
+    - cron: "0 3 * * *"
+    - cron: "0 11 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: robin-log2026-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate and publish post
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          POST_SOURCE: ${{ vars.POST_SOURCE || 'prewritten' }}
+          SELF_REPLY_ENABLED: ${{ vars.SELF_REPLY_ENABLED || '1' }}
+          SELF_REPLY_DELAY_MIN_MS: ${{ vars.SELF_REPLY_DELAY_MIN_MS || '60000' }}
+          SELF_REPLY_DELAY_MAX_MS: ${{ vars.SELF_REPLY_DELAY_MAX_MS || '120000' }}
+          INBOUND_REPLY_ENABLED: ${{ vars.INBOUND_REPLY_ENABLED || '1' }}
+          INBOUND_REPLY_SLOT: ${{ vars.INBOUND_REPLY_SLOT || '20:00' }}
+          INBOUND_REPLY_LIMIT: ${{ vars.INBOUND_REPLY_LIMIT || '2' }}
+          X_APP_KEY: ${{ secrets.X_APP_KEY || secrets.X_CONSUMER_KEY }}
+          X_APP_SECRET: ${{ secrets.X_APP_SECRET || secrets.X_CONSUMER_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET || secrets.X_ACCESS_TOKEN_SECRET }}
+          X_AUTH_MODE: ${{ vars.X_AUTH_MODE }}
+          X_OAUTH2_ACCESS_TOKEN: ${{ secrets.X_OAUTH2_ACCESS_TOKEN }}
+        run: npm run post
+
+      - name: Commit log
+        run: |
+          if [ -z "$(git status --porcelain -- logs/posts.jsonl logs/replies.jsonl logs/inbound-state.json)" ]; then
+            echo "No log changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add logs/posts.jsonl logs/replies.jsonl logs/inbound-state.json
+          git commit -m "Add scheduled post and reply log"
+          git pull --rebase
+          git push

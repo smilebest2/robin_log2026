@@ -1,0 +1,19 @@
+{
+  "name": "robin_log2026",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "post": "node src/post.js",
+    "dry-run": "node src/post.js --dry-run",
+    "preview": "node src/preview.js",
+    "preview:prewritten": "node src/preview-prewritten.js",
+    "check:setup": "node src/check-setup.js",
+    "lint": "node --check src/lib/env.js && node --check src/lib/posting.js && node --check src/lib/prewritten.js && node --check src/lib/replying.js && node --check src/post.js && node --check src/preview.js && node --check src/preview-prewritten.js && node --check src/check-setup.js"
+  },
+  "dependencies": {
+    "openai": "^5.0.0",
+    "twitter-api-v2": "^1.19.0"
+  },
+  "devDependencies": {}
+}
