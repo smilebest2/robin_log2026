@@ -6,6 +6,20 @@ on:
     - cron: "0 3 * * *"
     - cron: "0 11 * * *"
   workflow_dispatch:
+    inputs:
+      post_date:
+        description: "Post date in JST, e.g. 2026-06-09"
+        required: false
+        type: string
+      post_time:
+        description: "Post time in JST: 08:00, 12:00, or 20:00"
+        required: false
+        type: choice
+        options:
+          - ""
+          - "08:00"
+          - "12:00"
+          - "20:00"
 
 permissions:
   contents: write
@@ -39,6 +53,8 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
           POST_SOURCE: ${{ vars.POST_SOURCE || 'prewritten' }}
+          POST_DATE: ${{ inputs.post_date }}
+          POST_TIME: ${{ inputs.post_time }}
           SELF_REPLY_ENABLED: ${{ vars.SELF_REPLY_ENABLED || '1' }}
           SELF_REPLY_DELAY_MIN_MS: ${{ vars.SELF_REPLY_DELAY_MIN_MS || '60000' }}
           SELF_REPLY_DELAY_MAX_MS: ${{ vars.SELF_REPLY_DELAY_MAX_MS || '120000' }}

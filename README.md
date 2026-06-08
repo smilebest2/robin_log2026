@@ -116,6 +116,8 @@ npm run dry-run
 npm run post
 ```
 
+GitHub Actionsを手動実行する場合は、`post_date` と `post_time` を指定できます。事前作成文は `2026-06-09` から始まるため、初回テストは `post_date=2026-06-09`、`post_time=08:00` などを指定してください。
+
 ## ログ形式
 
 `logs/posts.jsonl` に1投稿1行のJSONで保存します。
