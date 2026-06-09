@@ -104,8 +104,8 @@ async function replyToInboundMentionsBeforePost({ date, slot, dryRun }) {
 async function main() {
   const dryRun = process.argv.includes("--dry-run") || process.env.DRY_RUN === "1" || process.env.DRY_RUN === "true";
   const jstNow = getJstNow();
-  const date = process.env.POST_DATE ?? formatJstDate(jstNow);
-  const slot = process.env.POST_TIME ?? currentSlot(jstNow);
+  const date = process.env.POST_DATE || formatJstDate(jstNow);
+  const slot = process.env.POST_TIME || currentSlot(jstNow);
   const logs = readLogs();
   const previousPosts = recentPosts(logs);
   const source = process.env.POST_SOURCE || "prewritten";
